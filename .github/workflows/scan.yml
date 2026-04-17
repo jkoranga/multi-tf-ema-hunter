@@ -1,0 +1,33 @@
+name: EMA Signal Scanner
+
+on:
+  schedule:
+    - cron: '0 * * * *'   # Every hour — script loops every 1 min for 55 mins
+  workflow_dispatch:       # Manual trigger from GitHub Actions UI
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install node-fetch firebase-admin
+
+      - name: Check secrets are set
+        run: |
+          echo "FIREBASE_SERVICE_ACCOUNT set: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}"
+          echo "ONESIGNAL_API_KEY set: ${{ secrets.ONESIGNAL_API_KEY != '' }}"
+
+      - name: Run EMA Scanner
+        env:
+          ONESIGNAL_API_KEY: ${{ secrets.ONESIGNAL_API_KEY }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: node .github/scripts/scan.js
