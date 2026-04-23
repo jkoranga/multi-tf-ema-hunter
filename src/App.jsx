@@ -99,7 +99,7 @@ function LoginPage({T,onSkip}){
     <div style={{background:T.panel,border:`1px solid ${T.brd2}`,padding:'40px 32px',width:'100%',maxWidth:380,borderRadius:16,boxShadow:`0 24px 80px ${T.sh}`}}>
       <div style={{textAlign:'center',marginBottom:32}}>
         <div style={{fontSize:28,fontWeight:900,letterSpacing:3,marginBottom:6,fontFamily:'Rajdhani,sans-serif'}}><span style={{color:T.acc}}>EMA-</span><span style={{color:T.bull}}>SIGNAL</span><span style={{color:T.txt}}>-HUNTER</span></div>
-        <div style={{fontFamily:'JetBrains Mono,monospace',fontSize:10,color:T.tm,letterSpacing:2}}>v9.17 - MULTI-TF · PARALLEL · 150+ PAIRS</div>
+        <div style={{fontFamily:'JetBrains Mono,monospace',fontSize:10,color:T.tm,letterSpacing:2}}>v9.18 - MULTI-TF · PARALLEL · 150+ PAIRS</div>
       </div>
       <button onClick={doG} disabled={loading} style={{width:'100%',padding:13,background:'transparent',border:`1px solid ${T.brd2}`,color:T.txt,fontFamily:'Rajdhani,sans-serif',fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:12,marginBottom:16,borderRadius:8,transition:'all .2s'}}>
         <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.2 0 5.9 1.1 8.1 2.9l6-6C34.5 3.1 29.6 1 24 1 14.9 1 7.1 6.4 3.5 14.1l7 5.4C12.4 13.4 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.4 5.5-5 7.2l7.7 6c4.5-4.1 7.1-10.2 7.1-17.2z"/><path fill="#FBBC05" d="M10.5 28.5c-.5-1.5-.8-3-.8-4.5s.3-3 .8-4.5L3.5 14C1.3 18.1 0 22.9 0 28s1.3 9.9 3.5 14l7-5.5z"/><path fill="#34A853" d="M24 47c5.6 0 10.4-1.9 13.8-5.1l-7.7-6c-2 1.4-4.5 2.2-6.1 2.2-6.3 0-11.6-3.9-13.5-9.6l-7 5.5C7.1 41.6 14.9 47 24 47z"/></svg>
@@ -438,11 +438,33 @@ function SettingsTab({T,dark,setDark,cfg,onSave,user,onLogout,onLogin,saving,sav
       </div>
     </Sec>
     <Sec title="RSI Cap" col={T.acc}>
-      <Row label="RSI Cap" sub={loc.rsiCapEnabled?`Bull >${50} cap ${loc.rsiBullCap??60} | Bear <50 floor ${loc.rsiBearCap??40}`:'Any RSI above/below 50'}><Tog on={loc.rsiCapEnabled} onChange={v=>set('rsiCapEnabled',v)} T={T} color={T.acc}/></Row>
-      {loc.rsiCapEnabled&&<>
-        <div style={{marginTop:10}}><div style={{fontFamily:'Rajdhani,sans-serif',fontSize:12,color:T.bull,fontWeight:700,marginBottom:4}}>🟢 BULL CAP — RSI must be ≤ this</div><Pills opts={[[55,'55'],[60,'60'],[65,'65'],[70,'70'],[75,'75'],[100,'Any']]} val={loc.rsiBullCap??60} pick={v=>set('rsiBullCap',v)} c={T.bull}/></div>
-        <div style={{marginTop:10}}><div style={{fontFamily:'Rajdhani,sans-serif',fontSize:12,color:T.bear,fontWeight:700,marginBottom:4}}>🔴 BEAR FLOOR — RSI must be ≥ this</div><Pills opts={[[0,'Any'],[25,'25'],[30,'30'],[35,'35'],[40,'40'],[45,'45']]} val={loc.rsiBearCap??40} pick={v=>set('rsiBearCap',v)} c={T.bear}/></div>
-      </>}
+      {(()=>{
+        const bCap=loc.rsiBullCap??60,bTol=loc.rsiBullTol??-10
+        const bullLo=Math.min(bCap,bCap+bTol),bullHi=Math.max(bCap,bCap+bTol)
+        const rCap=loc.rsiBearCap??40,rTol=loc.rsiBearTol??-10
+        const bearLo=Math.min(rCap,rCap-rTol),bearHi=Math.max(rCap,rCap-rTol)
+        return <>
+          <Row label="RSI Cap" sub={loc.rsiCapEnabled?`Bull ${bullLo}–${bullHi} | Bear ${bearLo}–${bearHi}`:'Any RSI above/below 50'}><Tog on={loc.rsiCapEnabled} onChange={v=>set('rsiCapEnabled',v)} T={T} color={T.acc}/></Row>
+          {loc.rsiCapEnabled&&<>
+            <div style={{marginTop:12}}>
+              <div style={{fontFamily:'Rajdhani,sans-serif',fontSize:12,color:T.bull,fontWeight:700,marginBottom:4}}>🟢 BULL DEFAULT CAP</div>
+              <Pills opts={[[55,'55'],[60,'60'],[65,'65'],[70,'70'],[75,'75']]} val={loc.rsiBullCap??60} pick={v=>set('rsiBullCap',v)} c={T.bull}/>
+            </div>
+            <div style={{marginTop:10}}>
+              <div style={{fontFamily:'Rajdhani,sans-serif',fontSize:11,color:T.bull,fontWeight:600,marginBottom:4}}>Tolerance → range {bullLo}–{bullHi}</div>
+              <Pills opts={[[-10,'-10'],[0,'0'],[10,'+10'],[20,'+20']]} val={loc.rsiBullTol??-10} pick={v=>set('rsiBullTol',v)} c={T.bull}/>
+            </div>
+            <div style={{marginTop:12}}>
+              <div style={{fontFamily:'Rajdhani,sans-serif',fontSize:12,color:T.bear,fontWeight:700,marginBottom:4}}>🔴 BEAR DEFAULT FLOOR</div>
+              <Pills opts={[[25,'25'],[30,'30'],[35,'35'],[40,'40'],[45,'45']]} val={loc.rsiBearCap??40} pick={v=>set('rsiBearCap',v)} c={T.bear}/>
+            </div>
+            <div style={{marginTop:10}}>
+              <div style={{fontFamily:'Rajdhani,sans-serif',fontSize:11,color:T.bear,fontWeight:600,marginBottom:4}}>Tolerance → range {bearLo}–{bearHi}</div>
+              <Pills opts={[[-10,'-10'],[0,'0'],[10,'+10'],[20,'+20']]} val={loc.rsiBearTol??-10} pick={v=>set('rsiBearTol',v)} c={T.bear}/>
+            </div>
+          </>}
+        </>
+      })()}
     </Sec>
     <Sec title="3-Candle Wick Touch" col={T.pink}>
       <Row label="Wick Touch" sub={loc.wickEnabled?`${loc.wickTouchPct}% from EMA40`:'Disabled'}><Tog on={loc.wickEnabled} onChange={v=>set('wickEnabled',v)} T={T} color={T.pink}/></Row>
@@ -466,7 +488,7 @@ function SettingsTab({T,dark,setDark,cfg,onSave,user,onLogout,onLogin,saving,sav
 }
 
 const TF_OPTIONS=[{v:'5m',l:'5m',ms:5*60*1000},{v:'15m',l:'15m',ms:15*60*1000},{v:'1h',l:'1h',ms:60*60*1000},{v:'4h',l:'4h',ms:4*60*60*1000}]
-const INIT_CFG=()=>{try{const s=JSON.parse(localStorage.getItem('ema_v9_cfg')||'null');return s?{...DEFAULT_SETTINGS,...s,rsiBullCap:s.rsiBullCap??60,rsiBearCap:s.rsiBearCap??40,slope:{...DEFAULT_SETTINGS.slope,...(s.slope||{})},timeframe:s.timeframe||'15m'}:{...DEFAULT_SETTINGS,timeframe:'15m'}}catch{return{...DEFAULT_SETTINGS,timeframe:'15m'}}}
+const INIT_CFG=()=>{try{const s=JSON.parse(localStorage.getItem('ema_v9_cfg')||'null');return s?{...DEFAULT_SETTINGS,...s,rsiBullCap:s.rsiBullCap??60,rsiBearCap:s.rsiBearCap??40,rsiBullTol:s.rsiBullTol??-10,rsiBearTol:s.rsiBearTol??-10,slope:{...DEFAULT_SETTINGS.slope,...(s.slope||{})},timeframe:s.timeframe||'15m'}:{...DEFAULT_SETTINGS,timeframe:'15m'}}catch{return{...DEFAULT_SETTINGS,timeframe:'15m'}}}
 
 export default function App(){
   const[dark,setDark]=useState(()=>{try{const s=localStorage.getItem('ema_dark');return s===null?true:s==='true'}catch{return true}})
@@ -729,7 +751,7 @@ export default function App(){
         <div style={{fontFamily:'Rajdhani,sans-serif',lineHeight:1}}>
           <div style={{fontSize:20,fontWeight:900,letterSpacing:2}}>
             <span style={{color:T.acc}}>EMA-</span><span style={{color:T.bull}}>SIGNAL</span><span style={{color:T.txt}}>-HUNTER</span>
-            <span style={{marginLeft:8,fontSize:10,color:T.bull,verticalAlign:'middle',border:`1px solid ${T.bull}44`,padding:'2px 7px',background:`${T.bull}0c`,fontFamily:'JetBrains Mono,monospace',borderRadius:4,letterSpacing:1}}>v9.17</span>
+            <span style={{marginLeft:8,fontSize:10,color:T.bull,verticalAlign:'middle',border:`1px solid ${T.bull}44`,padding:'2px 7px',background:`${T.bull}0c`,fontFamily:'JetBrains Mono,monospace',borderRadius:4,letterSpacing:1}}>v9.18</span>
           </div>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
