@@ -21,7 +21,7 @@ export function calcStrength(rsiVal,dir,cds,h9,h20,h40){
   return Math.min(10,Math.max(1,Math.round(s)))
 }
 export const DEFAULT_SLOPE={e9:{enabled:true,bars:1,minPct:0},e20:{enabled:true,bars:2,minPct:0.015},e40:{enabled:true,bars:2,minPct:0.015},e80:{enabled:true,bars:2,minPct:0}}
-export const DEFAULT_SETTINGS={slope:DEFAULT_SLOPE,gap9_20:0.015,gap20_40:0.025,gap40_80:0,gapEnabled:true,rsiTolerance:20,rsiCapEnabled:true,wickTouchPct:1.5,wickEnabled:true,scoreFilterEnabled:false,scoreMin:5,soundEnabled:true,tgOn:true,tgToken:'',tgChatId:''}
+export const DEFAULT_SETTINGS={slope:DEFAULT_SLOPE,gap9_20:0.015,gap20_40:0.025,gap40_80:0,gapEnabled:true,rsiTolerance:20,rsiBullCap:60,rsiBearCap:40,rsiCapEnabled:true,wickTouchPct:1.5,wickEnabled:true,scoreFilterEnabled:false,scoreMin:5,soundEnabled:true,tgOn:true,tgToken:'',tgChatId:''}
 export function detectBull(candles,cfg={}){
   const s={...DEFAULT_SETTINGS,...cfg};if(!candles||candles.length<85)return{ok:false}
   const cl=candles.map(c=>c.c),n=cl.length,e9=calcEMA(cl,9),e20=calcEMA(cl,20),e40=calcEMA(cl,40),e80=calcEMA(cl,80)
@@ -35,7 +35,8 @@ export function detectBull(candles,cfg={}){
   const lookback=Math.min(5,n-1)
   const recentCross=cl.slice(n-lookback-1,n).some((p,i,arr)=>i>0&&arr[i-1]<=calcEMA(cl.slice(0,n-lookback+i),9)&&p>calcEMA(cl.slice(0,n-lookback+i+1),9))
   const bullCross=recentCross||(prevPrice<=e9&&price>e9)||(candles[n-2]?.c<=e9*1.005&&price>e9*1.005),bullCandle=lc.c>lc.o
-  const rsiOk=s.rsiCapEnabled&&s.rsiTolerance<50?rsiVal>50&&rsiVal<=50+s.rsiTolerance:rsiVal>50
+  const bullCap=s.rsiBullCap??60
+  const rsiOk=s.rsiCapEnabled?rsiVal>50&&rsiVal<=bullCap:rsiVal>50
   const wickOk=s.wickEnabled?wickBull(candles,e40,s.wickTouchPct):true
   const r9=sl.e9.enabled?slopeUp(h9,sl.e9.bars,sl.e9.minPct):true,r20=sl.e20.enabled?slopeUp(h20,sl.e20.bars,sl.e20.minPct):true
   const r40=sl.e40.enabled?slopeUp(h40,sl.e40.bars,sl.e40.minPct):true,r80=sl.e80.enabled?slopeUp(h80,sl.e80.bars,sl.e80.minPct):true
@@ -55,7 +56,8 @@ export function detectBear(candles,cfg={}){
   const lookbackB=Math.min(5,n-1)
   const recentCrossB=cl.slice(n-lookbackB-1,n).some((p,i,arr)=>i>0&&arr[i-1]>=calcEMA(cl.slice(0,n-lookbackB+i),9)&&p<calcEMA(cl.slice(0,n-lookbackB+i+1),9))
   const bearCross=recentCrossB||(prevPrice>=e9&&price<e9)||(candles[n-2]?.c>=e9*.995&&price<e9*.995),bearCandle=lc.c<lc.o
-  const rsiOk=s.rsiCapEnabled&&s.rsiTolerance<50?rsiVal<50&&rsiVal>=50-s.rsiTolerance:rsiVal<50
+  const bearCap=s.rsiBearCap??40
+  const rsiOk=s.rsiCapEnabled?rsiVal<50&&rsiVal>=bearCap:rsiVal<50
   const wickOk=s.wickEnabled?wickBear(candles,e40,s.wickTouchPct):true
   const f9=sl.e9.enabled?slopeDn(h9,sl.e9.bars,sl.e9.minPct):true,f20=sl.e20.enabled?slopeDn(h20,sl.e20.bars,sl.e20.minPct):true
   const f40=sl.e40.enabled?slopeDn(h40,sl.e40.bars,sl.e40.minPct):true,f80=sl.e80.enabled?slopeDn(h80,sl.e80.bars,sl.e80.minPct):true
