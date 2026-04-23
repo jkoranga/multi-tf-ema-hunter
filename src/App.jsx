@@ -99,7 +99,7 @@ function LoginPage({T,onSkip}){
     <div style={{background:T.panel,border:`1px solid ${T.brd2}`,padding:'40px 32px',width:'100%',maxWidth:380,borderRadius:16,boxShadow:`0 24px 80px ${T.sh}`}}>
       <div style={{textAlign:'center',marginBottom:32}}>
         <div style={{fontSize:28,fontWeight:900,letterSpacing:3,marginBottom:6,fontFamily:'Rajdhani,sans-serif'}}><span style={{color:T.acc}}>EMA-</span><span style={{color:T.bull}}>SIGNAL</span><span style={{color:T.txt}}>-HUNTER</span></div>
-        <div style={{fontFamily:'JetBrains Mono,monospace',fontSize:10,color:T.tm,letterSpacing:2}}>v9.18 - MULTI-TF · PARALLEL · 150+ PAIRS</div>
+        <div style={{fontFamily:'JetBrains Mono,monospace',fontSize:10,color:T.tm,letterSpacing:2}}>v9.19 - MULTI-TF · PARALLEL · 150+ PAIRS</div>
       </div>
       <button onClick={doG} disabled={loading} style={{width:'100%',padding:13,background:'transparent',border:`1px solid ${T.brd2}`,color:T.txt,fontFamily:'Rajdhani,sans-serif',fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:12,marginBottom:16,borderRadius:8,transition:'all .2s'}}>
         <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.2 0 5.9 1.1 8.1 2.9l6-6C34.5 3.1 29.6 1 24 1 14.9 1 7.1 6.4 3.5 14.1l7 5.4C12.4 13.4 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.4 5.5-5 7.2l7.7 6c4.5-4.1 7.1-10.2 7.1-17.2z"/><path fill="#FBBC05" d="M10.5 28.5c-.5-1.5-.8-3-.8-4.5s.3-3 .8-4.5L3.5 14C1.3 18.1 0 22.9 0 28s1.3 9.9 3.5 14l7-5.5z"/><path fill="#34A853" d="M24 47c5.6 0 10.4-1.9 13.8-5.1l-7.7-6c-2 1.4-4.5 2.2-6.1 2.2-6.3 0-11.6-3.9-13.5-9.6l-7 5.5C7.1 41.6 14.9 47 24 47z"/></svg>
@@ -119,32 +119,26 @@ function LoginPage({T,onSkip}){
 function SigCard({sig,T,onSave,saved,isNew}){
   const bull=sig.dir==='bull',ac=bull?T.bull:T.bear,age=Math.floor((Date.now()-sig.ts)/60000)
   const isFutures=sig.market==='futures'
-  return <div style={{background:bull?T.cb:T.cr,border:`1px solid ${bull?T.bull+'30':T.bear+'30'}`,borderLeft:`3px solid ${ac}`,padding:'12px 14px',position:'relative',overflow:'hidden',opacity:age>30?.65:1,animation:isNew?'slideIn .35s cubic-bezier(.22,1,.36,1)':'none',borderRadius:8,marginBottom:1}}>
+  return <div style={{background:bull?T.cb:T.cr,border:`1px solid ${bull?T.bull+'30':T.bear+'30'}`,borderLeft:`3px solid ${ac}`,padding:'7px 10px',position:'relative',overflow:'hidden',opacity:age>30?.65:1,animation:isNew?'slideIn .35s cubic-bezier(.22,1,.36,1)':'none',borderRadius:8,marginBottom:1}}>
     {isNew&&<div style={{position:'absolute',top:0,left:0,right:0,height:2,background:`linear-gradient(90deg,${ac},transparent)`,animation:'fadeOut 2s forwards'}}/>}
-    <div style={{display:'flex',alignItems:'center',gap:10}}>
+    <div style={{display:'flex',alignItems:'center',gap:8}}>
       <Score s={sig.strength||1} T={T}/>
       <div style={{flex:1,minWidth:0}}>
-        <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap',marginBottom:4}}>
-          <span className="t-pair" style={{fontFamily:'Rajdhani,sans-serif',fontSize:17,fontWeight:800,color:T.txt,letterSpacing:.5}}>{sig.pair.replace('USDT','')}<span className="t-sub" style={{fontSize:11,color:T.tm,fontWeight:500}}>/USDT</span></span>
-          {isFutures&&<span style={{fontSize:9,padding:'2px 6px',background:`${T.warn}20`,border:`1px solid ${T.warn}44`,color:T.warn,fontFamily:'JetBrains Mono,monospace',fontWeight:700,borderRadius:4}}>PERP</span>}
-          <span className="t-dir" style={{fontFamily:'Rajdhani,sans-serif',fontSize:14,fontWeight:700,color:ac}}>{bull?' LONG':' SHORT'}</span>
-          <span className="t-price" style={{fontFamily:'JetBrains Mono,monospace',fontSize:13,color:T.acc,fontWeight:700}}>${fp(sig.price)}</span>
-          {sig.change24h!=null&&<span style={{fontFamily:'JetBrains Mono,monospace',fontSize:10,color:sig.change24h>=0?T.bull:T.bear,fontWeight:700}}>{sig.change24h>=0?'+':''}{sig.change24h.toFixed(2)}%</span>}
-        </div>
-        <div style={{display:'flex',gap:5,flexWrap:'wrap',alignItems:'center'}}>
-          {[['RSI '+sig.rsi?.toFixed(0),T.ts],[fm(sig.mcap),T.tm],sig.vol24h?[fv(sig.vol24h)+' vol',T.tm]:null].filter(Boolean).map(([l,c],i)=><span key={i} style={{fontSize:10,padding:'2px 7px',border:`1px solid ${c}33`,color:c,fontFamily:'JetBrains Mono,monospace',background:`${c}08`,borderRadius:4}}>{l}</span>)}
-        </div>
-        <div style={{display:'flex',gap:8,alignItems:'center',marginTop:5}}>
-          <span style={{fontFamily:'JetBrains Mono,monospace',fontSize:9,color:T.td,letterSpacing:.3}}>{fdtDate(sig.ts)}</span>
-          <span style={{fontFamily:'JetBrains Mono,monospace',fontSize:9,color:T.ts,fontWeight:700}}>{fdtTime(sig.ts)}</span>
-          {age>0&&<span style={{fontFamily:'JetBrains Mono,monospace',fontSize:9,color:T.td}}>{age}m ago</span>}
+        <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
+          <span style={{fontFamily:'Rajdhani,sans-serif',fontSize:15,fontWeight:800,color:T.txt,letterSpacing:.5}}>{sig.pair.replace('USDT','')}<span style={{fontSize:10,color:T.tm,fontWeight:500}}>/USDT</span></span>
+          {isFutures&&<span style={{fontSize:8,padding:'1px 5px',background:`${T.warn}20`,border:`1px solid ${T.warn}44`,color:T.warn,fontFamily:'JetBrains Mono,monospace',fontWeight:700,borderRadius:4}}>PERP</span>}
+          <span style={{fontFamily:'Rajdhani,sans-serif',fontSize:12,fontWeight:700,color:ac}}>{bull?'LONG':'SHORT'}</span>
+          <span style={{fontFamily:'JetBrains Mono,monospace',fontSize:11,color:T.acc,fontWeight:700}}>${fp(sig.price)}</span>
+          {sig.change24h!=null&&<span style={{fontFamily:'JetBrains Mono,monospace',fontSize:9,color:sig.change24h>=0?T.bull:T.bear,fontWeight:700}}>{sig.change24h>=0?'+':''}{sig.change24h.toFixed(2)}%</span>}
+          {[fm(sig.mcap),sig.vol24h?fv(sig.vol24h)+' vol':null].filter(Boolean).map((l,i)=><span key={i} style={{fontSize:9,padding:'1px 5px',border:`1px solid ${T.tm}22`,color:T.tm,fontFamily:'JetBrains Mono,monospace',background:`${T.tm}08`,borderRadius:3}}>{l}</span>)}
+          <span style={{fontFamily:'JetBrains Mono,monospace',fontSize:8,color:T.td}}>{fdtTime(sig.ts)}{age>0?` · ${age}m ago`:''}</span>
         </div>
       </div>
       <RSIA rv={sig.rsi} T={T} sm/>
       <MC cds={sig.cds} dir={sig.dir} T={T}/>
-      <div style={{display:'flex',flexDirection:'column',gap:5,flexShrink:0}}>
-        <button onClick={e=>{e.stopPropagation();onSave&&onSave(sig)}} style={{padding:'5px 9px',border:`1px solid ${saved?T.bull:T.brd}`,background:saved?`${T.bull}18`:'transparent',color:saved?T.bull:T.tm,fontFamily:'JetBrains Mono,monospace',fontSize:9,cursor:'pointer',fontWeight:700,transition:'all .2s',borderRadius:5}}>{saved?' saved':'+ save'}</button>
-        <a href={tvL(sig.pair,sig.tf||'15m')} target="_blank" rel="noreferrer" onClick={e=>e.stopPropagation()} style={{padding:'5px 9px',border:`1px solid ${T.acc}44`,background:`${T.acc}0c`,color:T.acc,fontFamily:'JetBrains Mono,monospace',fontSize:9,textDecoration:'none',fontWeight:700,textAlign:'center',borderRadius:5}}>📈 TV</a>
+      <div style={{display:'flex',flexDirection:'column',gap:4,flexShrink:0}}>
+        <button onClick={e=>{e.stopPropagation();onSave&&onSave(sig)}} style={{padding:'4px 8px',border:`1px solid ${saved?T.bull:T.brd}`,background:saved?`${T.bull}18`:'transparent',color:saved?T.bull:T.tm,fontFamily:'JetBrains Mono,monospace',fontSize:8,cursor:'pointer',fontWeight:700,transition:'all .2s',borderRadius:5}}>{saved?'✓ saved':'+ save'}</button>
+        <a href={tvL(sig.pair,sig.tf||'15m')} target="_blank" rel="noreferrer" onClick={e=>e.stopPropagation()} style={{padding:'4px 8px',border:`1px solid ${T.acc}44`,background:`${T.acc}0c`,color:T.acc,fontFamily:'JetBrains Mono,monospace',fontSize:8,textDecoration:'none',fontWeight:700,textAlign:'center',borderRadius:5}}>📈 TV</a>
       </div>
     </div>
   </div>
@@ -751,7 +745,7 @@ export default function App(){
         <div style={{fontFamily:'Rajdhani,sans-serif',lineHeight:1}}>
           <div style={{fontSize:20,fontWeight:900,letterSpacing:2}}>
             <span style={{color:T.acc}}>EMA-</span><span style={{color:T.bull}}>SIGNAL</span><span style={{color:T.txt}}>-HUNTER</span>
-            <span style={{marginLeft:8,fontSize:10,color:T.bull,verticalAlign:'middle',border:`1px solid ${T.bull}44`,padding:'2px 7px',background:`${T.bull}0c`,fontFamily:'JetBrains Mono,monospace',borderRadius:4,letterSpacing:1}}>v9.18</span>
+            <span style={{marginLeft:8,fontSize:10,color:T.bull,verticalAlign:'middle',border:`1px solid ${T.bull}44`,padding:'2px 7px',background:`${T.bull}0c`,fontFamily:'JetBrains Mono,monospace',borderRadius:4,letterSpacing:1}}>v9.19</span>
           </div>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
